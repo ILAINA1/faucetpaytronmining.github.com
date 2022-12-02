@@ -1,0 +1,237 @@
+function depositWithMetaMask() {
+
+    if (typeof window.ethereum == 'Undefinied') {
+
+        alert("Please make sure that your browser has a fresh version of MetaMask (or a similar software) installed.");
+
+    } else {
+
+        window.ethereum.enable()
+            .then(result => {
+
+                var account = ethereum.selectedAddress;
+
+                $.post('https://faucetpay.io/page/user-admin/deposit?link_eth_deposit=1', {
+                    'address': account
+                }, function (resp, err) {
+
+                    if (resp == 'false') {
+
+                        alert("The address you are using to deposit has already been used by someone else before. Please use a COMPLETELY NEW ADDRESS to make a deposit.");
+                        $("#depositBtn").attr('disabled', 'disabled');
+
+                    }
+
+                });
+
+                $("#modalEthereumDeposit").modal('show');
+
+            })
+            .catch(err => {
+                alert(err.message);
+            });
+
+    }
+
+}
+
+function depositFEYWithMetaMask() {
+
+    if (typeof window.ethereum == 'Undefinied') {
+
+        alert("Please make sure that your browser has a fresh version of MetaMask (or a similar software) installed.");
+
+    } else {
+
+        window.ethereum.enable()
+            .then(result => {
+
+                var account = ethereum.selectedAddress;
+
+                $.post('https://faucetpay.io/page/user-admin/deposit?link_eth_deposit=1', {
+                    'address': account
+                }, function (resp, err) {
+
+                    if (resp == 'false') {
+
+                        alert("The address you are using to deposit has already been used by someone else before. Please use a COMPLETELY NEW ADDRESS to make a deposit.");
+                        $("#depositBtn").attr('disabled', 'disabled');
+
+                    }
+
+                });
+
+                $("#modalFeyorraDeposit").modal('show');
+
+            })
+            .catch(err => {
+                alert(err.message);
+            });
+
+    }
+
+}
+
+function submitDeposit() {
+
+    var account = ethereum.selectedAddress;
+    var amount = ethers.utils.parseEther($("input[name='eth_amount']").val());
+
+    var abi = [{"inputs": [], "payable": false, "stateMutability": "nonpayable", "type": "constructor"}, {"anonymous": false, "inputs": [{"indexed": false, "internalType": "address", "name": "_from", "type": "address"}, {"indexed": false, "internalType": "uint256", "name": "_amount", "type": "uint256"}], "name": "Deposit", "type": "event"}, {
+        "anonymous": false,
+        "inputs": [{"indexed": false, "internalType": "address", "name": "_to", "type": "address"}, {"indexed": false, "internalType": "uint256", "name": "_amount", "type": "uint256"}],
+        "name": "Withdrawal",
+        "type": "event"
+    }, {"payable": true, "stateMutability": "payable", "type": "fallback"}, {"constant": false, "inputs": [{"internalType": "address payable", "name": "_newAddress", "type": "address"}], "name": "changeAdminAddress", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}, {"constant": false, "inputs": [], "name": "deposit", "outputs": [{"internalType": "bool", "name": "", "type": "bool"}], "payable": true, "stateMutability": "payable", "type": "function"}, {
+        "constant": false,
+        "inputs": [{"internalType": "address payable", "name": "_address", "type": "address"}, {"internalType": "uint256", "name": "_amount", "type": "uint256"}],
+        "name": "withdraw",
+        "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }, {"constant": false, "inputs": [{"internalType": "address[]", "name": "_addresses", "type": "address[]"}, {"internalType": "uint256[]", "name": "_amounts", "type": "uint256[]"}], "name": "withdrawMass", "outputs": [{"internalType": "bool", "name": "", "type": "bool"}], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
+
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+
+    let contractInstance = new ethers.Contract("0xf44ea500abd7d4fb8b0bc5c42002e0eb58d0eb42", abi, signer);
+
+    contractInstance.deposit({value: amount})
+        .then(result => {
+            window.location = 'https://faucetpay.io/page/user-admin/deposit?deposit_initiated=1';
+        })
+        .catch(err => {
+            alert(err.message);
+        });
+
+}
+
+function submitFeyDeposit() {
+
+    var account = ethereum.selectedAddress;
+    var amount = ethers.utils.parseEther($("input[name='fey_amount']").val()).toString(10);
+
+    var abi = [{"anonymous": false, "inputs": [{"indexed": true, "internalType": "address", "name": "_owner", "type": "address"}, {"indexed": true, "internalType": "address", "name": "_spender", "type": "address"}, {"indexed": false, "internalType": "uint256", "name": "_value", "type": "uint256"}], "name": "Approval", "type": "event"}, {
+        "anonymous": false,
+        "inputs": [{"indexed": false, "internalType": "uint256", "name": "daysOld", "type": "uint256"}, {"indexed": false, "internalType": "uint256", "name": "secondsOld", "type": "uint256"}, {"indexed": false, "internalType": "uint256", "name": "stakeId", "type": "uint256"}],
+        "name": "ClosedGhostStake",
+        "type": "event"
+    }, {"anonymous": false, "inputs": [{"indexed": false, "internalType": "uint256", "name": "_totalSupply", "type": "uint256"}, {"indexed": false, "internalType": "uint256", "name": "_totalStakedAmount", "type": "uint256"}, {"indexed": false, "internalType": "uint64", "name": "_snapshotDay", "type": "uint64"}], "name": "SnapshotCaptured", "type": "event"}, {
+        "anonymous": false,
+        "inputs": [{"indexed": true, "internalType": "uint256", "name": "_stakingId", "type": "uint256"}, {"indexed": false, "internalType": "address", "name": "_address", "type": "address"}, {"indexed": false, "internalType": "uint256", "name": "_amount", "type": "uint256"}],
+        "name": "StakeEnd",
+        "type": "event"
+    }, {"anonymous": false, "inputs": [{"indexed": true, "internalType": "uint256", "name": "_stakingId", "type": "uint256"}, {"indexed": false, "internalType": "address", "name": "_address", "type": "address"}, {"indexed": false, "internalType": "uint256", "name": "_amount", "type": "uint256"}], "name": "StakeStart", "type": "event"}, {
+        "anonymous": false,
+        "inputs": [{"indexed": true, "internalType": "address", "name": "_from", "type": "address"}, {"indexed": true, "internalType": "address", "name": "_to", "type": "address"}, {"indexed": false, "internalType": "uint256", "name": "_value", "type": "uint256"}],
+        "name": "Transfer",
+        "type": "event"
+    }, {"anonymous": false, "inputs": [{"indexed": true, "internalType": "address", "name": "_invoker", "type": "address"}, {"indexed": true, "internalType": "address", "name": "_newOwner", "type": "address"}], "name": "ownershipChanged", "type": "event"}, {"inputs": [], "name": "LAUNCH_TIME", "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "stateMutability": "view", "type": "function"}, {"inputs": [], "name": "MAX_STAKE_DAYS", "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "stateMutability": "view", "type": "function"}, {
+        "inputs": [],
+        "name": "MINIMUM_STAKE",
+        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+        "stateMutability": "view",
+        "type": "function"
+    }, {"inputs": [], "name": "SECONDS_IN_DAY", "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "stateMutability": "view", "type": "function"}, {"inputs": [], "name": "YEARLY_INTEREST", "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "stateMutability": "view", "type": "function"}, {
+        "inputs": [{"internalType": "address", "name": "_owner", "type": "address"}, {"internalType": "address", "name": "_spender", "type": "address"}],
+        "name": "allowance",
+        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+        "stateMutability": "view",
+        "type": "function"
+    }, {"inputs": [{"internalType": "address", "name": "", "type": "address"}, {"internalType": "address", "name": "", "type": "address"}], "name": "allowances", "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "stateMutability": "view", "type": "function"}, {
+        "inputs": [{"internalType": "address", "name": "_spender", "type": "address"}, {"internalType": "uint256", "name": "_amount", "type": "uint256"}],
+        "name": "approve",
+        "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }, {"inputs": [{"internalType": "address", "name": "_address", "type": "address"}], "name": "balanceOf", "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "stateMutability": "view", "type": "function"}, {"inputs": [{"internalType": "address", "name": "", "type": "address"}], "name": "balances", "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "stateMutability": "view", "type": "function"}, {
+        "inputs": [{"internalType": "uint256", "name": "_amount", "type": "uint256"}],
+        "name": "burn",
+        "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }, {"inputs": [{"internalType": "address", "name": "_newOwner", "type": "address"}], "name": "changeOwner", "outputs": [{"internalType": "bool", "name": "", "type": "bool"}], "stateMutability": "nonpayable", "type": "function"}, {"inputs": [{"internalType": "uint256", "name": "_stakingId", "type": "uint256"}], "name": "closeGhostStake", "outputs": [], "stateMutability": "nonpayable", "type": "function"}, {
+        "inputs": [{"internalType": "uint256", "name": "_stakingId", "type": "uint256"}],
+        "name": "closeStake",
+        "outputs": [{"internalType": "uint256", "name": "stakedAmount", "type": "uint256"}, {"internalType": "uint256", "name": "penaltyAmount", "type": "uint256"}, {"internalType": "uint256", "name": "interestAmount", "type": "uint256"}],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }, {"inputs": [], "name": "currentFeyDay", "outputs": [{"internalType": "uint64", "name": "", "type": "uint64"}], "stateMutability": "view", "type": "function"}, {"inputs": [], "name": "decimals", "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "stateMutability": "view", "type": "function"}, {"inputs": [{"internalType": "uint256", "name": "_stakingId", "type": "uint256"}], "name": "estimateReturn", "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "stateMutability": "view", "type": "function"}, {
+        "inputs": [{
+            "internalType": "uint256",
+            "name": "_stakedAmount",
+            "type": "uint256"
+        }, {"internalType": "uint256", "name": "_totalStakedAmount", "type": "uint256"}, {"internalType": "uint256", "name": "_seconds", "type": "uint256"}], "name": "getInterest", "outputs": [{"internalType": "uint256", "name": "durationInterestAmt", "type": "uint256"}], "stateMutability": "view", "type": "function"
+    }, {"inputs": [{"internalType": "uint256", "name": "_percentage", "type": "uint256"}], "name": "getInterestRateYearly", "outputs": [{"internalType": "uint256", "name": "interestRate", "type": "uint256"}], "stateMutability": "pure", "type": "function"}, {"inputs": [], "name": "getNow", "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "stateMutability": "view", "type": "function"}, {
+        "inputs": [{"internalType": "uint256", "name": "_numerator", "type": "uint256"}, {"internalType": "uint256", "name": "_denominator", "type": "uint256"}, {
+            "internalType": "uint256",
+            "name": "_precision",
+            "type": "uint256"
+        }], "name": "getPercent", "outputs": [{"internalType": "uint256", "name": "quotient", "type": "uint256"}], "stateMutability": "pure", "type": "function"
+    }, {"inputs": [{"internalType": "uint256", "name": "_stakingId", "type": "uint256"}], "name": "getStakeAge", "outputs": [{"internalType": "uint256", "name": "daysTotal", "type": "uint256"}, {"internalType": "uint256", "name": "secondsToday", "type": "uint256"}], "stateMutability": "view", "type": "function"}, {"inputs": [{"internalType": "uint256", "name": "_stakingId", "type": "uint256"}], "name": "getStakeInterest", "outputs": [{"internalType": "uint256", "name": "stakeInterest", "type": "uint256"}], "stateMutability": "view", "type": "function"}, {
+        "inputs": [{
+            "internalType": "uint256",
+            "name": "_stakingId",
+            "type": "uint256"
+        }], "name": "getStakePenalty", "outputs": [{"internalType": "uint256", "name": "penaltyAmount", "type": "uint256"}], "stateMutability": "view", "type": "function"
+    }, {
+        "inputs": [{"internalType": "uint256", "name": "_stakingId", "type": "uint256"}],
+        "name": "getStaking",
+        "outputs": [{"internalType": "uint256", "name": "_stakedAmount", "type": "uint256"}, {"internalType": "address", "name": "_userAddress", "type": "address"}, {"internalType": "uint256", "name": "_returnAmount", "type": "uint256"}, {"internalType": "uint256", "name": "interestAmount", "type": "uint256"}, {"internalType": "uint256", "name": "_stakedAt", "type": "uint256"}, {"internalType": "bool", "name": "_isActive", "type": "bool"}],
+        "stateMutability": "view",
+        "type": "function"
+    }, {"inputs": [{"internalType": "uint256", "name": "_day", "type": "uint256"}], "name": "getYearlyInterestHistorical", "outputs": [{"internalType": "uint256", "name": "percentage", "type": "uint256"}, {"internalType": "uint256", "name": "interestRateYearly", "type": "uint256"}], "stateMutability": "view", "type": "function"}, {
+        "inputs": [],
+        "name": "getYearlyInterestLatest",
+        "outputs": [{"internalType": "uint256", "name": "percentage", "type": "uint256"}, {"internalType": "uint256", "name": "interestRateYearly", "type": "uint256"}],
+        "stateMutability": "view",
+        "type": "function"
+    }, {"inputs": [], "name": "globals", "outputs": [{"internalType": "uint256", "name": "stakingId", "type": "uint256"}, {"internalType": "uint256", "name": "currentFeyDay", "type": "uint256"}, {"internalType": "uint256", "name": "totalStakedAmount", "type": "uint256"}], "stateMutability": "view", "type": "function"}, {"inputs": [], "name": "manualDailySnapshot", "outputs": [], "stateMutability": "nonpayable", "type": "function"}, {
+        "inputs": [],
+        "name": "name",
+        "outputs": [{"internalType": "string", "name": "", "type": "string"}],
+        "stateMutability": "view",
+        "type": "function"
+    }, {"inputs": [{"internalType": "uint256", "name": "_amount", "type": "uint256"}], "name": "openStake", "outputs": [{"internalType": "bool", "name": "", "type": "bool"}], "stateMutability": "nonpayable", "type": "function"}, {"inputs": [], "name": "owner", "outputs": [{"internalType": "address", "name": "", "type": "address"}], "stateMutability": "view", "type": "function"}, {
+        "inputs": [{"internalType": "uint256", "name": "_value", "type": "uint256"}, {"internalType": "uint256", "name": "_perc", "type": "uint256"}],
+        "name": "percentCalculator",
+        "outputs": [{"internalType": "uint256", "name": "percentageValue", "type": "uint256"}],
+        "stateMutability": "pure",
+        "type": "function"
+    }, {"inputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "name": "snapshots", "outputs": [{"internalType": "uint256", "name": "totalSupply", "type": "uint256"}, {"internalType": "uint256", "name": "totalStakedAmount", "type": "uint256"}], "stateMutability": "view", "type": "function"}, {
+        "inputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+        "name": "stakeList",
+        "outputs": [{"internalType": "address", "name": "userAddress", "type": "address"}, {"internalType": "uint256", "name": "stakedAmount", "type": "uint256"}, {"internalType": "uint256", "name": "returnAmount", "type": "uint256"}, {"internalType": "uint256", "name": "interestAmount", "type": "uint256"}, {"internalType": "uint256", "name": "stakedAt", "type": "uint256"}, {"internalType": "bool", "name": "isActive", "type": "bool"}],
+        "stateMutability": "view",
+        "type": "function"
+    }, {"inputs": [], "name": "symbol", "outputs": [{"internalType": "string", "name": "", "type": "string"}], "stateMutability": "view", "type": "function"}, {"inputs": [], "name": "totalSupply", "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "stateMutability": "view", "type": "function"}, {
+        "inputs": [{"internalType": "address", "name": "_receiver", "type": "address"}, {"internalType": "uint256", "name": "_amount", "type": "uint256"}],
+        "name": "transfer",
+        "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }, {"inputs": [{"internalType": "address", "name": "_owner", "type": "address"}, {"internalType": "address", "name": "_receiver", "type": "address"}, {"internalType": "uint256", "name": "_amount", "type": "uint256"}], "name": "transferFrom", "outputs": [{"internalType": "bool", "name": "", "type": "bool"}], "stateMutability": "nonpayable", "type": "function"}];
+
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+
+    let contractInstance = new ethers.Contract("0xe8e06a5613dc86d459bc8fb989e173bb8b256072", abi, signer);
+
+    contractInstance.transfer("0xD7a2c5AaF050b3f8eCF4bE79D036A429a1960df5", amount)
+        .then(result => {
+            window.location = 'https://faucetpay.io/page/user-admin/deposit?deposit_initiated=1';
+        })
+        .catch(err => {
+            alert(err.message);
+        });
+
+}
+
+function showAPIKey(key) {
+
+    $("#api_key").val(key);
+
+    $("#modalFaucetAPIKey").modal('show');
+
+}
